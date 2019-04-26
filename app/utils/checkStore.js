@@ -9,10 +9,9 @@ export default function checkStore(store) {
     dispatch: isFunction,
     subscribe: isFunction,
     getState: isFunction,
+    logicMiddleware: isFunction,
     replaceReducer: isFunction,
-    runSaga: isFunction,
     injectedReducers: isObject,
-    injectedSagas: isObject,
   };
   invariant(
     conformsTo(store, shape),

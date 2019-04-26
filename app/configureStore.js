@@ -4,12 +4,17 @@
 
 import { createStore, applyMiddleware, compose } from 'redux';
 import { routerMiddleware } from 'connected-react-router';
-import createSagaMiddleware from 'redux-saga';
+import { createLogicMiddleware } from 'redux-logic';
+import logger from 'redux-logger';
 import createReducer from './reducers';
+import requestUtil from './utils/request';
 
 export default function configureStore(initialState = {}, history) {
   let composeEnhancers = compose;
-  const reduxSagaMonitorOptions = {};
+
+  // inject helpers, make requestUtil available to all logic
+  const injectedHelpers = { requestUtil };
+  const logicMiddleware = createLogicMiddleware([], injectedHelpers);
 
   // If Redux Dev Tools and Saga Dev Tools Extensions are installed, enable them
   /* istanbul ignore next */
@@ -27,12 +32,10 @@ export default function configureStore(initialState = {}, history) {
     /* eslint-enable */
   }
 
-  const sagaMiddleware = createSagaMiddleware(reduxSagaMonitorOptions);
-
   // Create the store with two middlewares
-  // 1. sagaMiddleware: Makes redux-sagas work
+  // 1. logicMiddleware: enables redux-logic
   // 2. routerMiddleware: Syncs the location/URL path to the state
-  const middlewares = [sagaMiddleware, routerMiddleware(history)];
+  const middlewares = [logger, logicMiddleware, routerMiddleware(history)];
 
   const enhancers = [applyMiddleware(...middlewares)];
 
@@ -43,9 +46,9 @@ export default function configureStore(initialState = {}, history) {
   );
 
   // Extensions
-  store.runSaga = sagaMiddleware.run;
+  store.logicMiddleware = logicMiddleware;
   store.injectedReducers = {}; // Reducer registry
-  store.injectedSagas = {}; // Saga registry
+  store.injectedLogics = {}; // Logic registry
 
   // Make reducers hot reloadable, see http://mxs.is/googmo
   /* istanbul ignore next */

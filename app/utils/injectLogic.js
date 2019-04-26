@@ -1,0 +1,50 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import hoistNonReactStatics from 'hoist-non-react-statics';
+import { ReactReduxContext } from 'react-redux';
+
+import getInjectors from './logicInjectors';
+
+/**
+ * Dynamically injects a logic, passes component's props as logic arguments
+ *
+ * @param {string} key A key of the logic
+ * @param {function} logic A root logic that will be injected
+ *
+ */
+export default ({ key, logic }) => WrappedComponent => {
+  class InjectLogic extends React.Component {
+    static WrappedComponent = WrappedComponent;
+
+    static contextTypes = {
+      store: PropTypes.object.isRequired,
+    };
+
+    static displayName = `withLogic(${WrappedComponent.displayName ||
+      WrappedComponent.name ||
+      'Component'})`;
+
+    componentWillMount() {
+      const { injectLogic } = this.injectors;
+
+      injectLogic(key, { logic }, this.props);
+    }
+
+    injectors = getInjectors(this.context.store);
+
+    render() {
+      return <WrappedComponent {...this.props} />;
+    }
+  }
+
+  return hoistNonReactStatics(InjectLogic, WrappedComponent);
+};
+
+const useInjectLogic = ({ key, logic }) => {
+  const context = React.useContext(ReactReduxContext);
+  React.useEffect(() => {
+    getInjectors(context.store).injectLogic(key, { logic });
+  }, []);
+};
+
+export { useInjectLogic };
