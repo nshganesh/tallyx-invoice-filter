@@ -22,20 +22,12 @@ import reducer from './reducer';
 import * as types from './constants';
 import logic from './logic';
 import {
-  Col,
+  Alert,
   Row,
   Button,
-  Form,
-  FormGroup,
-  Label,
   Input,
   InputGroup,
   InputGroupAddon,
-  InputGroupText,
-  Card,
-  CardText,
-  CardTitle,
-  Table,
 } from 'reactstrap';
 import InvoiceItem from 'components/InvoiceItem';
 import { formatDate } from 'utils/utility'
@@ -103,15 +95,24 @@ export const HomePage = ({
           <>
             <h5 className="mx-4 px-4">{currency.slug} Invoices with value between {amountRange.min} - {amountRange.max} maturing between {formatDate(dateRange[0])} and {formatDate(dateRange[1])}</h5>
 
-            <Row className="mx-4">
-              {
-                invoices.map(item =>
-                  <InvoiceItem
-                    key={item.id}
-                    invoice={item}
-                  />)
-              }
-            </Row>
+            {
+              invoices.length === 0 ?
+                <div className="mx-4">
+                  <Alert color="info">
+                    No Invoice found for this filter
+                  </Alert>
+                </div> :
+                <Row className="mx-4">
+                  {
+                    invoices.map(item =>
+                      <InvoiceItem
+                        key={item.id}
+                        invoice={item}
+                      />)
+                  }
+                </Row>
+            }
+
           </>
 
         }

@@ -35,7 +35,7 @@ export const initialState = {
     min: "",
     max: "",
   },
-  dateRange: [new Date(), new Date()],
+  dateRange: [new Date('01/01/2019'), new Date('01/01/2020')],
   loading: false,
   error: null,
   invoices: [],
