@@ -7,10 +7,10 @@ import { initialState } from './reducer';
 
 const selectHome = state => state.home || initialState;
 
-const makeSelectUsername = () =>
+const makeSelectCurrency = () =>
   createSelector(
     selectHome,
-    homeState => homeState.username,
+    homeState => homeState.currency,
   );
 
 const makeSelectLoading = () =>
@@ -25,16 +25,37 @@ const makeSelectError = () =>
     homeState => homeState.error,
   );
 
-const makeSelectRepos = () =>
+const makeSelectAmountRange = () =>
   createSelector(
     selectHome,
-    homeState => homeState.userData.repositories,
+    homeState => homeState.amountRange,
   );
+
+const makeSelectDateRange = () =>
+  createSelector(
+    selectHome,
+    homeState => homeState.dateRange,
+  );
+
+const makeSelectInvoices = () =>
+  createSelector(
+    selectHome,
+    homeState => homeState.invoices,
+  )
+
+const makeSelectShowInvoiceList = () =>
+  createSelector(
+    selectHome,
+    homeState => homeState.showInvoiceList,
+  )
 
 export {
   selectHome,
-  makeSelectUsername,
-  makeSelectRepos,
+  makeSelectCurrency,
+  makeSelectAmountRange,
+  makeSelectDateRange,
   makeSelectError,
   makeSelectLoading,
+  makeSelectInvoices,
+  makeSelectShowInvoiceList,
 };

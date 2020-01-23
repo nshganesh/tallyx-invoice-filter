@@ -1,0 +1,17 @@
+[
+    '{{repeat(1550, 7)}}',
+    {
+      id: '{{objectId()}}',
+      reference: '{{index()}}',
+      maturity_date: '{{date(new Date(2010, 0, 1), new Date(),"dd/MM/YYYY")}}',
+      amount: '{{floating(1000, 4000, 2, "0,0.00")}}',
+      buyer: '{{company().toUpperCase()}}',
+      supplier: '{{company().toUpperCase()}}',
+      invoiced_at: '{{date(new Date(2010, 0, 1), new Date(),"dd/MM/YYYY")}}',
+      Ccy: function (tags) {
+        var currencies = ['USD', 'INR', 'JPY', 'RYD'];
+        return currencies[tags.integer(0, currencies.length - 1)];
+      }
+      
+    }
+  ]

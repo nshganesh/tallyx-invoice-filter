@@ -9,6 +9,10 @@
  * export const YOUR_ACTION_CONSTANT = 'yourproject/YourContainer/YOUR_ACTION_CONSTANT';
  */
 
-export const LOAD_REPOS = 'Zimith/Home/LOAD_REPOS';
-export const LOAD_REPOS_SUCCESS = 'Zimith/Home/LOAD_REPOS_SUCCESS';
-export const LOAD_REPOS_ERROR = 'Zimith/Home/LOAD_REPOS_ERROR';
+export const CURRENCY_CHANGED = 'Tallyx/Home/CURRENCY_CHANGED';
+export const AMOUNT_RANGE_CHANGED = 'Tallyx/Home/AMOUNT_RANGE_CHANGED';
+export const DATE_RANGE_CHANGED = 'Tallyx/Home/DATE_RANGE_CHANGED'
+
+export const FILTER_INVOICE_START = 'Tallyx/Home/FILTER_INVOICE_START'
+export const FILTER_INVOICE_SUCCESS = 'Tallyx/Home/FILTER_INVOICE_SUCCESS'
+export const FILTER_INVOICE_FAILURE = 'Tallyx/Home/FILTER_INVOICE_FAILURE'

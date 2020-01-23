@@ -8,8 +8,20 @@ import { defineMessages } from 'react-intl';
 export const scope = 'app.containers.HomePage';
 
 export default defineMessages({
-  header: {
-    id: `${scope}.header`,
-    defaultMessage: 'This is HomePage container!',
+  currency: {
+    id: `${scope}.currency`,
+    defaultMessage: 'Currency'
+  },
+  amountRange: {
+    id: `${scope}.amountRange`,
+    defaultMessage: 'Amount'
+  },
+  maturityDateRange: {
+    id: `${scope}.maturityDateRange`,
+    defaultMessage: 'Maturity'
+  },
+  errorMessage: {
+    id: `${scope}.errorMessage`,
+    defaultMessage: 'Unable to filter out invoices'
   },
 });

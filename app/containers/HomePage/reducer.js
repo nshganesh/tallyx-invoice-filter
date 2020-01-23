@@ -8,37 +8,71 @@
  */
 
 import produce from 'immer';
-import { LOAD_REPOS_SUCCESS, LOAD_REPOS, LOAD_REPOS_ERROR } from './constants';
+import * as types from './constants';
 
+export const currencies = [
+  {
+    locale: "en-US",
+    slug: "USD",
+  },
+  {
+    locale: "en-IN",
+    slug: "INR",
+  },
+  {
+    locale: "en-US",
+    slug: "JPY",
+  },
+  {
+    locale: "en-IN",
+    slug: "RYD",
+  }
+]
 // The initial state of the App
 export const initialState = {
-  username: 'nshganesh',
-  loading: false,
-  error: false,
-  currentUser: false,
-  userData: {
-    repositories: false,
+  currency: currencies[0],
+  amountRange: {
+    min: "",
+    max: "",
   },
+  dateRange: [new Date(), new Date()],
+  loading: false,
+  error: null,
+  invoices: [],
+  showInvoiceList: false
 };
+
+
 
 /* eslint-disable default-case, no-param-reassign */
 const homeReducer = (state = initialState, action) =>
   produce(state, draft => {
     switch (action.type) {
-      case LOAD_REPOS:
+      case types.CURRENCY_CHANGED:
+        draft.currency = action.payload.currency
+        draft.showInvoiceList = false
+        break;
+      case types.AMOUNT_RANGE_CHANGED:
+        draft.amountRange = action.payload.amount
+        draft.showInvoiceList = false
+        break;
+      case types.DATE_RANGE_CHANGED:
+        draft.dateRange = action.payload.date
+        draft.showInvoiceList = false
+        break;
+      case types.FILTER_INVOICE_START:
         draft.loading = true;
-        draft.error = false;
-        draft.userData.repositories = false;
+        draft.error = null;
+        draft.showInvoiceList = false
         break;
-
-      case LOAD_REPOS_SUCCESS:
-        draft.userData.repositories = action.repos;
+      case types.FILTER_INVOICE_SUCCESS:
+        draft.invoices = action.payload.invoices
+        draft.showInvoiceList = true
         draft.loading = false;
-        draft.currentUser = action.username;
         break;
-
-      case LOAD_REPOS_ERROR:
-        draft.error = action.error;
+      case types.FILTER_INVOICE_FAILURE:
+        draft.error = "Unable to filter out the invoices"
+        draft.showInvoiceList = false
         draft.loading = false;
         break;
     }

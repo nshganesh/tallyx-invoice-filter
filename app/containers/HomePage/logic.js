@@ -1,57 +1,85 @@
-/**
- * Gets the repositories of the user from Github
- */
 
 import { createLogic } from 'redux-logic';
 import { LOCATION_CHANGE } from 'connected-react-router';
-import { reposLoaded, repoLoadingError } from './actions';
-import { makeSelectUsername } from './selectors';
-import { LOAD_REPOS } from './constants';
+import { makeSelectInvoice } from './selectors';
+import * as types from './constants';
+import { invoices } from 'utils/invoice'
+import { toNumber, toLocale } from 'utils/utility'
 
-/**
- * Github repos request/response handler
- */
-export const getReposLogic = createLogic({
-  type: LOAD_REPOS, // trigger on this action
+export const currencyChangeLogic = createLogic({
+  type: types.CURRENCY_CHANGED,
   cancelType: LOCATION_CHANGE, // cancel if route changes
-  latest: true, // use response for the latest request when multiple
+  latest: true,
+  process: ({ getState, action }, dispatch, done) => {
+    // add unique tid to action.meta of every action
+    const { currency } = action.payload;
+    const { amountRange } = getState().home
 
-  processOptions: {
-    // options configuring the process hook below
-    // on error/reject, automatically dispatch(repoLoadingError(err))
-    failType: repoLoadingError, // action creator which accepts error
-  },
+    dispatch({
+      type: types.AMOUNT_RANGE_CHANGED,
+      payload: {
+        amount: {
+          ...amountRange,
+          min: toLocale(currency.locale, amountRange.min),
+          max: toLocale(currency.locale, amountRange.max),
+        }
+      }
+    })
+    done()
+  }
+})
 
-  // perform async processing, Using redux-logic promise features
-  // so it will dispatch the resolved action from the returned promise.
-  // on error, it dispatches the using the action creator set in
-  // processOptions.failType above `repoLoadingError(err)`
-  // requestUtil was injected in store.js createLogicMiddleware
-  process({ getState, requestUtil /* , action */ }) {
-    const username = makeSelectUsername()(getState());
-    const requestURL = `https://api.github.com/users/${username}/repos?type=all&sort=updated`;
-    return requestUtil(requestURL) // return a promise resolving to action
-      .then(repos => reposLoaded(repos, username)); // resolve w/action
-  },
+export const amountFormatLogic = createLogic({
+  type: types.AMOUNT_RANGE_CHANGED, // trigger on this action
+  cancelType: LOCATION_CHANGE, // cancel if route changes
+  latest: true,
+
+  transform: ({ getState, action }, next) => {
+    // add unique tid to action.meta of every action
+    const { amount } = action.payload;
+    const { currency } = getState().home
+
+    const payload = {
+      amount: {
+        min: toLocale(currency.locale, amount.min),
+        max: toLocale(currency.locale, amount.max),
+      }
+    }
+    next({
+      ...action,
+      payload
+    });
+  }
 });
 
-/*
-   Optional onLogicInit function, implement to run this after load
-   It runs once per load by checking if the store is the same as last
-  */
-let lastStore; // save reference to last store to only run once
-export function onLogicInit(store) {
-  /* remove the next two lines to rerun on every route change back */
-  if (lastStore === store) {
-    return;
-  } // only running on initial load
-  lastStore = store; // save for load once check
+export const filterInvoiceLogic = createLogic({
+  type: types.FILTER_INVOICE_START,
+  cancelType: LOCATION_CHANGE,
+  latest: true,
 
-  const username = makeSelectUsername()(store.getState());
-  if (username) {
-    store.dispatch({ type: LOAD_REPOS });
+  process: ({ getState, action }, dispatch, done) => {
+    const { currency, amountRange, dateRange } = getState().home
+
+    const filteredInvoices = invoices.filter(invoice => {
+      let isCcySame = invoice.Ccy === currency.slug
+      let isAmountInRange = (toNumber(amountRange.min) < toNumber(invoice.amount)) && (toNumber(amountRange.max) > toNumber(invoice.amount))
+      let isDateInRange = (new Date(dateRange[0]) < new Date(invoice.maturity_date)) && (new Date(dateRange[1]) > new Date(invoice.maturity_date))
+      return  isDateInRange && isCcySame && isAmountInRange
+    })
+
+    dispatch({
+      type: types.FILTER_INVOICE_SUCCESS,
+      payload: {
+        invoices: filteredInvoices
+      }
+    })
+
+    done();
   }
-}
+})
 
-// Bootstrap logic
-export default [getReposLogic];
+export default [
+  amountFormatLogic,
+  filterInvoiceLogic,
+  currencyChangeLogic,
+];
